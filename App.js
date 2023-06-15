@@ -29,8 +29,13 @@ import {
 import SplashScreen from './SplashScreen';
 import StartScreen from './StartScreen';
 import { useState, useEffect } from 'react';
+import HomeScreen from './HomeScreen';
+import CreateListScreen from './CreateListScreen';
+import AppointmentScreen from './AppointmentScreen';
 import LoginScreen from './LoginScreen';
-import ForgetPasswordScreen from './ForgetPasswordScreen';
+
+
+
 
 const App = () => {
 
@@ -51,7 +56,7 @@ const App = () => {
         <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
 
           {
-          <ForgetPasswordScreen/>}
+          <LoginScreen/>}
         </View>
       )}
     </SafeAreaView>

@@ -1,120 +1,221 @@
 import React, { useState } from 'react';
-import { View, Image, StyleSheet, Text, Alert, TextInput, SafeAreaView, TouchableOpacity, Button } from 'react-native';
-
+import { View, Image, StyleSheet, Text, TextInput, SafeAreaView, TouchableOpacity, Button, Modal } from 'react-native';
+import ForgetPasswordScreen from './ForgetPasswordScreen';
+import HomeScreen from './HomeScreen';
 
 const LoginScreen = () => {
-  const [passwordVisible, setPasswordVisible] = useState(false);
-  const [password, setPassword] = useState('');
+    const [passwordVisible, setPasswordVisible] = useState(false);
+    const [password, setPassword] = useState('');
+    const [email, setEmail] = useState('');
+    const [currentScreen, setCurrentScreen] = useState('Login');
+    const [isLoggedIn, setIsLoggedIn] = useState(false);
+    const [showPopup, setShowPopup] = useState(false);
 
-  const onChangeText = (text) => {
-    // Handle text input change
-  };
+    const handleTextChange = (text) => {
+        setEmail(text);
+    };
 
-  const togglePasswordVisibility = () => {
-    setPasswordVisible(!passwordVisible);
-  };
+    const handlePasswordChange = (text) => {
+        setPassword(text);
+    };
 
-  const handleForgetPassword = () => {
-    // Handle Forget Password action
-  };
+    const togglePasswordVisibility = () => {
+        setPasswordVisible(!passwordVisible);
+    };
 
-  return (
-    <View style={styles.container}>
-      {/* Logo */}
-      <Image
-        source={require('./images/medMan.png')}
-        style={styles.image}
-      />
+    const handleForgetPassword = () => {
+        setCurrentScreen('ForgetPasswordScreen');
+    };
 
-      {/* Login text */}
-      <Text style={styles.text}>Login</Text>
+    const handleSubmit = () => {
+        if (email.trim() === '' || password.trim() === '') {
+            setShowPopup(true);
+        } else {
+            // Perform login request here
 
-      {/* Input fields */}
-      <SafeAreaView>
-        <TextInput
-          style={styles.input}
-          onChangeText={onChangeText}
-          placeholder="Login ID"
-        />
+            // If login is successful
+            setIsLoggedIn(true);
+        }
+    };
 
-        <TextInput
-          style={styles.input}
-          value={password}
-          secureTextEntry={!passwordVisible}
-          placeholder="Password"
-        />
+    const handleClosePopup = () => {
+        setShowPopup(false);
+    };
 
-        {/* Password show button */}
-        <TouchableOpacity onPress={togglePasswordVisibility}>
-          <Text style={styles.toggleButtonText}>
-            {passwordVisible ? 'Hide' : 'Show'}
-          </Text>
-        </TouchableOpacity>
+    if (isLoggedIn) {
+        return <HomeScreen />;
+    }
 
-        {/* Forget Password */}
-        <TouchableOpacity onPress={handleForgetPassword}>
-          <Text style={styles.forgetPasswordText}>Forget Password</Text>
-        </TouchableOpacity>
-      </SafeAreaView>
+    if (currentScreen === 'Login') {
+        return (
+            <View>
+                <View style={styles.container}>
+                    {/* Logo */}
+                    <Image
+                        source={require('./images/medMan.png')}
+                        style={styles.image}
+                    />
 
-      {/* Login button */}
-      <Button
-        style={styles.buttonContainer}
-        title="Login"
-        color="#01C6B2"
-        onPress={() => Alert.alert('Button pressed')}
-      />
-    </View>
-  );
+                    {/* Login text */}
+                    <Text style={styles.text}>Login</Text>
+
+                    {/* Input fields */}
+                    <SafeAreaView>
+                        <TextInput
+                            style={styles.input}
+                            onChangeText={handleTextChange}
+                            placeholder="Login ID"
+                        />
+
+                        <TextInput
+                            style={styles.input}
+                            onChangeText={handlePasswordChange}
+                            value={password}
+                            secureTextEntry={!passwordVisible}
+                            placeholder="Password"
+                        />
+
+                        {/* Password show button */}
+                        <TouchableOpacity onPress={togglePasswordVisibility}>
+                            <Text style={styles.toggleButtonText}>
+                                {passwordVisible ? 'Hide' : 'Show'}
+                            </Text>
+                        </TouchableOpacity>
+
+                        {/* Forget Password */}
+                        <TouchableOpacity onPress={handleForgetPassword}>
+                            <Text style={styles.forgetPasswordText}>Forget Password ?</Text>
+                        </TouchableOpacity>
+                    </SafeAreaView>
+
+                     {/* Login button */}
+                     <Button
+                     style={styles.buttonContainer}
+                     title="Login"
+                     color="#01C6B2"
+                     onPress={handleSubmit}/>
+                </View>
+
+                {/* Popup */}
+                <Modal visible={showPopup} animationType="slide" transparent={true}>
+                    <View style={styles.popupContainer}>
+                        <View style={styles.popup}>
+                            <Text style={styles.popupText}>Please Enter Login ID & Password</Text>
+                            <Button
+                                color={'#01C6B2'}
+                                title="OK" onPress={handleClosePopup} />
+                        </View>
+                    </View>
+                </Modal>
+            </View>
+        );
+    }
+
+    if (currentScreen === 'ForgetPasswordScreen') {
+        return <ForgetPasswordScreen />;
+    }
+
+    return null;
 };
 
 const styles = StyleSheet.create({
-  
-  image: {
-    marginBottom:30,
-    width: 275,
-    height: 275,
-    alignSelf: 'center',
-    resizeMode: 'contain',
-  },
-  text: {
-    color: 'black',
-    marginTop: 20,
-    marginBottom: 15,
-    fontSize: 28,
-    fontWeight: 'bold',
-  },
-  toggleButtonText: {
-    color: 'black',
-    marginTop: 10,
-    marginBottom: 10,
-    fontSize: 15,
-    fontWeight: 'bold',
-    textAlign: 'right',
-  },
-  forgetPasswordText: {
-    color: 'black',
-    marginTop: 10,
-    marginBottom: 50,
-    fontSize: 15,
-    fontWeight: 'bold',
-    textAlign: 'right',
-  },
-  buttonContainer: {
-    backgroundColor: '#01C6B2', // Set the background color of the button
-    borderRadius: 10, // Set the border radius of the button
-    padding:20,
-    alignItems: 'center', // Center the content horizontally
-    justifyContent: 'center',// Center the content vertically
-  },
-  input: {
-    height: 55,
-    width: 300,
-    margin: 12,
-    borderWidth: 1,
-    padding: 10,
-    borderRadius: 10,
-  },
+    container: {
+        // Styling for the container view
+        flex: 1,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    image: {
+        // Styling for the image component
+        marginBottom: 30,
+        width: 275,
+        height: 275,
+        alignSelf: 'center',
+        resizeMode: 'contain',
+    },
+    text: {
+        // Styling for the text component
+        color: 'black',
+        marginTop: 20,
+        marginBottom: 15,
+        fontSize: 28,
+        alignSelf: 'flex-start',
+        fontWeight: 'bold',
+    },
+
+    toggleButtonText: {
+        // Styling for the toggle button text component
+        color: 'black',
+        marginTop: 10,
+        marginBottom: 10,
+        fontSize: 15,
+        fontWeight: 'bold',
+        textAlign: 'right',
+        position: 'absolute',
+        zIndex: 450,
+        bottom: 20,
+        right: 20,
+        left: 200,
+    },
+
+    forgetPasswordText: {
+        // Styling for the forget password text component
+        color: 'black',
+        marginTop: 20,
+        marginBottom: 50,
+        fontSize: 15,
+        fontWeight: 'bold',
+        textAlign: 'right',
+    },
+
+    buttonContainer: {
+        // Styling for the button container
+        backgroundColor: '#01C6B2',
+        borderRadius: 10,
+        padding: 20,
+        alignItems: 'center',
+        justifyContent: 'center',
+        position: 'absolute',
+        height: 55,
+        width: 300,
+        margin: 12,
+    },
+
+    input: {
+        // Styling for the input component
+        height: 55,
+        width: 300,
+        margin: 12,
+        borderWidth: 2,
+        padding: 10,
+        borderRadius: 10,
+        borderColor: '#E4E8F1',
+        backgroundColor: '#F6F6F6',
+    },
+
+    popupContainer: {
+        // Styling for the popup container
+        flex: 1,
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    },
+
+    popup: {
+        // Styling for the popup view
+        backgroundColor: 'white',
+        padding: 20,
+        borderRadius: 10,
+    },
+
+    popupText: {
+        // Styling for the popup text
+        marginBottom: 20,
+        fontSize: 18,
+        fontWeight: 'bold',
+        textAlign: 'center',
+    },
+
 });
 
 export default LoginScreen;
