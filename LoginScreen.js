@@ -88,12 +88,12 @@ const LoginScreen = () => {
                         </TouchableOpacity>
                     </SafeAreaView>
 
-                     {/* Login button */}
-                     <Button
-                     style={styles.buttonContainer}
-                     title="Login"
-                     color="#01C6B2"
-                     onPress={handleSubmit}/>
+                    {/* Login button */}
+                    <Button
+                        style={styles.buttonContainer}
+                        title="Login"
+                        color="#01C6B2"
+                        onPress={handleSubmit} />
                 </View>
 
                 {/* Popup */}
@@ -103,7 +103,8 @@ const LoginScreen = () => {
                             <Text style={styles.popupText}>Please Enter Login ID & Password</Text>
                             <Button
                                 color={'#01C6B2'}
-                                title="OK" onPress={handleClosePopup} />
+                                title="OK"
+                                onPress={handleClosePopup} />
                         </View>
                     </View>
                 </Modal>
