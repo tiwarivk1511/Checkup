@@ -1,219 +1,371 @@
-import React, { useState, useRef } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
-  View,
+  Animated,
+  Image,
   StyleSheet,
   Text,
-  Alert,
-  Image,
-  Animated,
-  ScrollView,
-  SafeAreaView,
-  TouchableHighlight,
   TouchableOpacity,
+  TouchableHighlight,
+  View,
   Modal,
-  Button
+  TextInput,
+  FlatList,
+  ScrollView,
+  ActivityIndicator
 } from 'react-native';
-import { SwipeListView } from 'react-native-swipe-list-view';
 
-const AppointmentScreen = () => {
-  const [scrolling, setScrolling] = useState(false);
+import SearchCards from './SearchCard';
+
+
+export default function SwipeValueBasedUi() {
+
   const [showPopup, setShowPopup] = useState(false);
 
-  const onScrollBeginDrag = () => {
-    setScrolling(true);
-  };
+  //UID genetation State
+  const [genUID, setgenUID] = useState('');
 
-  const onScrollEndDrag = () => {
-    setScrolling(false);
-  };
+  async function Generate() {
+    // Add Generate UID API link here
+    const API_GenUID = 'http://';
+    
 
-  const rowSwipeAnimatedValues = {};
-  // Creating Animated.Value objects for each row
-  Array(20).fill('').forEach((_, i) => {
-    rowSwipeAnimatedValues[`${i}`] = new Animated.Value(0);
-  });
+  }
 
-  const [listData, setListData] = useState(
-    Array(20).fill('').map((_, i) => ({ key: `${i}`, text: `item #${i}` }))
-  );
+  //Searching Operation performence
+  const [showSearch, setShowSearch] = useState(false);
+  const [showPatentDetail, setShowPatentDetail] = useState(false);
 
-  const closeRow = (rowMap, rowKey) => {
-    if (rowMap[rowKey]) {
-      rowMap[rowKey].closeRow();
+  const [list, setdata] = useState([]);
+  const [FilteredData, setFilteredData] = useState(list);
+
+  async function fetchData() {
+    const url = "http://172.168.0.193:8000/api/patients";
+    try {
+      const res = await fetch(url);
+      const resData = await res.json();
+
+      if (res.ok) {
+        setdata(resData['success']);
+        // console.log(list);
+      }
+      else {
+        // console.log(resData['error']);
+      }
     }
+    catch (error) {
+      console.log("error");
+    }
+  }
+  useEffect(() => {
+
+    fetchData();
+
+  }, [])
+
+  const [searchQuery, setSearchQuery] = useState('');
+
+  const handleClear = () => {
+    setSearchQuery('');
+  }
+
+  const handleSearch = (text) => {
+    setSearchQuery(text);
+    let name = "";
+    let temp = [];
+
+    temp = list.filter((item) => {
+      name = item.First_name;
+      if (name.toLowerCase().startsWith(text.toLowerCase())) {
+        return item;
+      }
+      else {
+        return null;
+      }
+    })
+    setFilteredData(temp);
   };
-
-  const deleteRow = (rowMap, rowKey) => {
-    closeRow(rowMap, rowKey);
-    const newData = listData.filter((item) => item.key !== rowKey);
-    setListData(newData);
-  };
+  //Searching Operation Completed
 
 
-  const onRowDidOpen = (rowKey) => {
-    console.log('This row opened', rowKey);
-  };
-
-  const onSwipeValueChange = (swipeData) => {
-    const { key, value } = swipeData;
-    rowSwipeAnimatedValues[key].setValue(Math.abs(value));
-  };
-
+  // hasndling Popups & Touches
   const handleClosePopup = () => {
     setShowPopup(false);
   };
 
-  const renderItem = (data) => (
-    <TouchableHighlight
-      onPress={() => console.log('You touched me')}
-      style={styles.rowFront}
-      underlayColor={'#AAA'}
-    >
-      {/* creating the cards to show the patent data */}
-      <View>
-        <TouchableOpacity>
-          <Image
-          source={require('./images/tripdot.png')}
-          style={styles.tripleDotIcon}/>
-        </TouchableOpacity>
-        <Text>I am {data.item.text} in a SwipeListView</Text>
-      </View>
-    </TouchableHighlight>
-  );
+  const handleScreenTouch = () => {
+    setShowSearch(false);
+  };
 
-  const renderHiddenItem = (data, rowMap) => (
-    <View style={styles.rowBack}>
-      {/* Tick icon */}
-      <TouchableOpacity>
-        <Image source={require('./images/tick.png')}
-          style={styles.tick}
-          onPress={() => deleteRow(rowMap, data.item.key)} />
-      </TouchableOpacity>
-      {/* Delete button */}
-      <TouchableOpacity
-        style={[styles.backRightBtn, styles.backRightBtnRight]}
-        onPress={() => deleteRow(rowMap, data.item.key)}
-      >
-        <Animated.View
-          style={[
-            styles.trash,
-            {
-              transform: [
-                {
-                  // Interpolate scale value based on swipe distance
-                  scale: rowSwipeAnimatedValues[data.item.key].interpolate({
-                    inputRange: [25, 50],
-                    outputRange: [0, 1],
-                    extrapolate: 'clamp',
-                  }),
-                },
-              ],
-            },
-          ]}
-        ></Animated.View>
-      </TouchableOpacity>
-      {/* Cross icon */}
-      <TouchableOpacity>
-        <Image
-          source={require('./images/cross.png')}
-          style={styles.trash}
-        />
-      </TouchableOpacity>
-    </View>
-  );
+  const handleSearchVisible = () => {
+    setShowSearch(true);
+  };
+
+  const patentDetail = () => {
+    setShowPatentDetail(true);
+  };
+
+  const handlePatentDataTouch = () => {
+    setShowPatentDetail(false);
+  };
+
+
+  // handle Press when click on Search
+  function handlePress() {
+    // Task 1
+    handleClosePopup();
+    // Task 2
+    handleSearchVisible();
+  }
+
+  // handle Press when click on Search
+  function handlePressOnAddNew() {
+    // Task 1
+    handleClosePopup();
+    // Task 2
+    patentDetail();
+  }
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.headingText}>Appointment</Text>
-      <ScrollView
-        style={styles.scroll}
-        scrollEventThrottle={16}
-        onScrollBeginDrag={onScrollBeginDrag}
-        onScrollEndDrag={onScrollEndDrag}
-      >
-        <SwipeListView
-          data={listData}
-          renderItem={renderItem}
-          renderHiddenItem={renderHiddenItem}
-          leftOpenValue={75}
-          rightOpenValue={-50}
-          previewRowKey={'0'}
-          previewOpenValue={-50}
-          previewOpenDelay={3000}
-          onRowDidOpen={onRowDidOpen}
-          onSwipeValueChange={onSwipeValueChange}
-        />
-      </ScrollView>
-      <SafeAreaView>
+    <TouchableOpacity style={styles.container} onPress={handleScreenTouch}>
+      <View style={styles.appointView}>
+        <Text style={styles.font}>Appointment</Text>
+      </View>
+      <View style={styles.appointView}>
+        {/* Add the cards here */}
+      </View>
+      <View style={styles.btnView} backgroundColor={"white"}>
         <TouchableOpacity onPress={() => setShowPopup(true)}>
-          {/* Button image */}
           <Image
             style={styles.imgPop}
-            source={require('./images/ButtonPop.png')}
+            onPress={showPopup}
+            source={require("./images/ButtonPop.png")}
           />
         </TouchableOpacity>
-      </SafeAreaView>
+      </View>
 
-      {/* Popup */}
-      <Modal visible={showPopup} animationType="slide" transparent={true}>
-        <View>
-          <View style={styles.popup}>
-            <Text>Search</Text>
-            <Text>Add New</Text>
-            <Button
-              style={styles.btnTxt}
-              title="Search"
-              onPress={handleClosePopup}
-            />
-            <Button style={styles.btnTxt}
-            color={'white'}
-              title="Add New"
-              onPress={handleClosePopup}
-            />
-          </View>
+      {/*Popup 1 */}
+      <Modal visible={showPopup} animationType="slide" transparent={true} >
+        <View style={styles.popup}>
+          <TouchableOpacity
+            style={styles.closeButton}
+            onPress={handleClosePopup}
+          >
+            <Text style={styles.closeButtonText}>X</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.popupButton}
+            onPress={handlePress}
+          >
+            <Text style={styles.popupButtonText}>Search</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.popupButton}
+            onPress={() => {
+              handlePressOnAddNew();
+            }}
+          >
+            <Text style={styles.popupButtonText}>Add New</Text>
+          </TouchableOpacity>
         </View>
       </Modal>
-    </View>
+
+      {/*Model for search */}
+      {showSearch && (
+        <TouchableOpacity onPress={handleScreenTouch}>
+          <View style={styles.backView}>
+            <View style={styles.frontView}>
+              {searchQuery && (<TouchableOpacity
+                style={styles.clrBtn}
+                onPress={handleClear}
+              >
+                <Image
+                  source={require('./images/clear.png')} />
+              </TouchableOpacity>)}
+
+
+              <TextInput
+                style={styles.input}
+                placeholder="Search"
+                value={searchQuery}
+                onChangeText={handleSearch}
+              />
+              <ScrollView horizontal="true">
+                <FlatList
+                  data={
+                    FilteredData
+                  }
+                  renderItem={SearchCards}
+                />
+              </ScrollView>
+            </View>
+          </View>
+        </TouchableOpacity>
+      )}
+
+      {/*Patent's Details */}
+      {showPatentDetail && (
+        <TouchableOpacity onPress={handlePatentDataTouch}>
+          <View style={styles.PbackView}
+            onPress={handlePatentDataTouch}>
+            <View style={styles.PfrontView}>
+              <View style={styles.fontView}>
+              <Text
+                style={styles.font}>Patient's Details</Text>
+              </View>
+              
+              <TextInput
+                style={styles.PInput}
+                placeholder='Name' />
+              <TextInput
+                style={styles.PInput}
+                placeholder='Age' />
+              <TextInput
+                style={styles.PInput}
+                placeholder='Gender' />
+              <TextInput
+                style={styles.PInput}
+                placeholder='D.O.B.' />
+              <TextInput
+                style={styles.PInput}
+                placeholder='Ph. Number' />
+              <TextInput
+                style={styles.PInput}
+                placeholder='Address' />
+              <TextInput
+                style={styles.PInput}
+                placeholder='E-mail' />
+              <TextInput
+                style={styles.uniqueID}
+                placeholder='Unique ID' />
+
+              <TouchableOpacity style={styles.btnGen}>
+                <Text
+                  style={styles.genTxt}>Generate</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={styles.submitBtn}>
+                <Text
+                  style={styles.submitTxt}>Submit</Text>
+              </TouchableOpacity>
+
+            </View>
+          </View>
+        </TouchableOpacity>
+      )}
+    </TouchableOpacity>
   );
-};
+}
 
 const styles = StyleSheet.create({
-
   container: {
+    width: 410,
+    backgroundColor: '#EAEAEA',
     flex: 1,
-    width: 411,
-    height: 400,
-    backgroundColor: 'white',
-    padding: 1,
+  },
+  tripDot: {
+    height: 20,
+    width: 4,
+    position: 'relative',
+    left: 282,
   },
 
-  popup: {
-    // Styling for the popup view
-    position:'absolute',
-    width: 200,
-    padding: 8,
-    borderRadius: 10,
-    top:690,
-    left:165,
-    
+  // Input Styles
+  input: {
+    width: 355,
+    height: 50,
+    padding: 10,
+    top: 18,
+    marginLeft: 29,
+    marginRight: 29,
+    backgroundColor: '#C0C0C0',
+    marginBottom: 20,
+    borderWidth: 1,
+    borderColor: '#808080',
+    borderRadius: 4,
   },
 
-  btnTxt: {
-    
+  clrBtn: {
+    position: 'relative',
+    left: 340,
+    top: 58,
+    zIndex: 400,
   },
 
+  CName: {
+    color: 'black',
+    fontWeight: 'bold',
+  },
+  appointView: {
+    height: 425,
+    backgroundColor: '#EAEAEA',
+  },
 
-  rowFront: {
+  standalonecontainer: {
+    width: 395,
+    backgroundColor: '#F6F9FE',
+    flex: 1,
+  },
+  standalone: {
+    marginTop: 10,
+  },
+  standaloneRowFront: {
     alignItems: 'center',
     backgroundColor: '#FFFFFF',
-    borderColor: '#E4E8F1',
-    borderRadius: 4,
-    borderWidth: 1,
     justifyContent: 'center',
-    height: 50,
-    padding: 2,
+    height: 80,
+    borderRadius: 10,
+    borderColor: '#E4E8F1',
+    marginLeft: 10,
+    marginRight: 10,
   },
 
+  standalonecustomerName: {
+    color: 'black',
+    fontWeight: 'bold',
+    fontSize: 16,
+    alignSelf: 'flex-start',
+    marginLeft: 10,
+  },
+
+  standaloneage: {
+    color: '#01C6B2',
+    fontWeight: 'bold',
+    alignSelf: 'flex-start',
+    top: 16,
+    marginLeft: 15,
+  },
+
+  standalonetoken: {
+    color: '#BDBDBD',
+    fontWeight: 'bold',
+    alignSelf: 'flex-end',
+    top: 5,
+    marginRight: 10,
+  },
+
+  font: {
+    marginTop: 5,
+    marginLeft: 10,
+    fontSize: 26,
+    color: 'black',
+    fontWeight: 'bold',
+  },
+  backTextWhite: {
+    color: '#FFF',
+  },
+  rowFront: {
+    alignItems: 'center',
+    backgroundColor: 'white',
+    borderColor: '#E4E8F1',
+    borderBottomWidth: 1,
+    justifyContent: 'center',
+    marginTop: 4,
+    height: 70,
+    borderRadius: 5,
+  },
   rowBack: {
     alignItems: 'center',
     backgroundColor: '#01C6B2',
@@ -221,89 +373,40 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     paddingLeft: 15,
+    borderColor: '#E4E8F1',
+    marginTop: 4,
+    height: 65,
   },
   backRightBtn: {
     alignItems: 'center',
     bottom: 0,
     justifyContent: 'center',
     position: 'absolute',
-    top: 1,
-    width: 50,
-  },
-  backRightBtnLeft: {
-    backgroundColor: 'blue',
-    right: 75,
+    top: 0,
+    width: 85,
+    borderRadius: 10,
   },
   backRightBtnRight: {
     backgroundColor: 'red',
     right: 0,
+    height: 70,
+    borderRadius: 5,
   },
   trash: {
-    height: 25,
-    width: 25,
-    marginRight: 10,
+    height: 30,
+    width: 30,
   },
-
   tick: {
-    height: 25,
-    width: 25,
+    height: 30,
+    width: 30,
   },
-
-  scroll: {
-    flex: 1,
-    width: 411,
-    height: 400,
+  scrollview: {
+    height: 300,
     backgroundColor: '#EAEAEA',
-    marginLeft: 2,
-    marginRight: 4,
   },
-
-  headingText: {
-    color: 'black',
-    marginTop: 20,
-    marginLeft: 10,
-    marginBottom: 10,
-    fontSize: 30,
-    fontWeight: 'bold',
-    textAlign: 'left',
+  cards: {
+    borderRadius: 20,
   },
-
-  card: {
-    backgroundColor: 'white',
-    width: 380,
-    borderRadius: 8,
-    alignSelf: 'center',
-    padding: 16,
-    elevation: 2,
-    marginVertical: 4,
-  },
-
-  cardTitle: {
-    color: '#000000',
-    fontSize: 18,
-    fontWeight: 'bold',
-  },
-
-  swipeOption: {
-    position: 'absolute',
-    top: 0,
-    bottom: 0,
-    justifyContent: 'center',
-    alignItems: 'center',
-    width: 70,
-    zIndex: 1,
-  },
-
-  leftSwipeOption: {
-    left: -70,
-    backgroundColor: '#01C6B2',
-  },
-
-  rightSwipeOption: {
-    right: -70,
-    backgroundColor: '#F96D82',
-  },
-
   imgPop: {
     width: 90,
     height: 90,
@@ -314,72 +417,235 @@ const styles = StyleSheet.create({
     position: 'absolute',
     zIndex: 400,
     bottom: 10,
-    right: 5,
+    right: 3,
   },
-
-  image: {
-    width: 30,
-    height: 30,
-    resizeMode: 'contain',
-  },
-
-  popupBackdrop: {
-    position: 'absolute',
-    top: 0,
-    bottom: 0,
-    left: 0,
-    right: 0,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-
-  popupContainer: {
+  popup: {
     backgroundColor: 'white',
-    width: 200,
-    padding: 16,
-    borderRadius: 8,
+    padding: 5,
+    margin: 50,
+    borderRadius: 10,
+    elevation: 5,
+    width: 130,
+    height: 120,
+    top: 620,
+    left: 190,
+  },
+
+  popupB: {
+    backgroundColor: 'white',
+    padding: 20,
+    margin: 50,
+    borderRadius: 10,
+    elevation: 5,
+    width: 180,
+    height: 150,
+    top: 270,
+    left: 70,
+  },
+
+  btnView: {
+    width: 420,
+    Color: 'white'
   },
 
   popupButton: {
-    padding: 8,
-    marginBottom: 2,
-    borderBottomColor: '#808080',
-    borderBottomWidth: 1,
+    marginTop: 10,
+    padding: 10,
+    borderRadius: 5,
     backgroundColor: 'white',
     alignItems: 'center',
   },
 
-  popupButton2: {
-    padding: 8,
-    marginBottom: 2,
+  popupButtonB: {
+    marginTop: 10,
+    padding: 10,
+    borderRadius: 5,
     backgroundColor: 'white',
     alignItems: 'center',
+    borderTopColor: '#E4E8F1',
+    borderEndColor: 'white',
+    borderLeftColor: 'white',
+    borderBottomColor: 'white',
+    borderWidth: 2,
   },
-
-  tripleDotIcon: {
-    height: 16,
-    width: 3,
-    position: 'relative',
-    zIndex: 400,
-    bottom: 1,
-    right: 5,
-    left: 290,
-  },
-
-  tokenTxt: {
-    alignSelf: 'flex-end',
-    position: 'absolute',
-    zIndex: 400,
-    bottom: 10,
-    right: 5,
-    left: 290,
-  },
-
   popupButtonText: {
     color: 'black',
     fontWeight: 'bold',
   },
-});
+  closeButton: {
+    color: 'red',
+    alignSelf: 'flex-end',
+  },
+  closeButtonText: {
+    color: 'red',
+    fontWeight: 'bold',
+    right: 5,
+  },
 
-export default AppointmentScreen;
+
+  // styles for Search popup
+  backView: {
+    flex: 1,
+    height: 730,
+    width: 412,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    bottom: 370,
+  },
+
+  // Inner View Styles
+  frontView: {
+    height: 730,
+    width: 411,
+    top: 20,
+    marginStart: 0,
+    borderRadius: 30,
+    shadowColor: '#000',
+    backgroundColor: 'white',
+    borderWidth: 2,
+  },
+
+
+  //Patent Details Popup
+
+  PbackView: {
+    flex: 1,
+    height: 730,
+    width: 412,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#00000026',
+    bottom: 370,
+  },
+
+  // Inner View Styles
+  PfrontView: {
+    height: 830,
+    width: 411,
+    margintop:30,
+    marginBottom:10,
+    marginStart: 0,
+    borderRadius: 30,
+    shadowColor: '#000',
+    backgroundColor: 'white',
+    borderWidth: 2,
+    borderColor:'#F6F9FE',
+  },
+
+  // Patient's Details
+
+  fontView:{
+    marginTop:20,
+    marginBottom:15,
+    marginLeft:10,
+  },
+
+  PInput: {
+    width: 390,
+    height: 50,
+    padding: 10,
+    top: 15,
+    marginLeft: 10,
+    marginRight: 29,
+    backgroundColor: '#F6F6F6',
+    marginBottom: 20,
+    borderWidth: 2,
+    borderColor: '#808080',
+    borderRadius: 4,
+  },
+
+  uniqueID: {
+    width: 200,
+    height: 50,
+    padding: 10,
+    top: 15,
+    marginLeft: 10,
+    marginRight: 29,
+    backgroundColor: '#F6F6F6',
+    marginBottom: 20,
+    borderWidth: 2,
+    borderColor: '#808080',
+    borderRadius: 4,
+  },
+
+  btnGen: {
+    width: 177,
+    height: 50,
+    padding: 10,
+    bottom: 55,
+    marginLeft: 10,
+    marginRight: 29,
+    backgroundColor: 'white',
+    marginBottom: 20,
+    borderWidth: 2,
+    borderColor: '#01C6B2',
+    borderRadius: 4,
+    position: 'relative',
+    left: 210,
+  },
+
+  genTxt: {
+    alignSelf: 'center',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+
+  submitBtn: {
+    width: 390,
+    height: 50,
+    padding: 10,
+    top:1,
+    bottom: 55,
+    marginLeft: 10,
+    marginRight: 29,
+    backgroundColor: '#01C6B2',
+    marginBottom: 20,
+    borderWidth: 3,
+    borderColor: '#01C6B2',
+    borderRadius: 4,
+    position: 'relative',
+  },
+
+
+  submitTxt: {
+    alignSelf: 'center',
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: 'white',
+  },
+
+
+  customerName: {
+    color: 'black',
+    fontWeight: 'bold',
+    fontSize: 16,
+    alignSelf: 'flex-start',
+    marginLeft: 10,
+    top: 7,
+  },
+
+  time: {
+    color: '#01C6B2',
+    fontWeight: 'bold',
+    alignSelf: 'flex-start',
+    top: 7,
+    marginLeft: 15,
+  },
+
+  token: {
+    color: '#BDBDBD',
+    fontWeight: 'bold',
+    alignSelf: 'flex-end',
+    marginRight: 10,
+    bottom: 3,
+  },
+
+  age: {
+    color: '#000000',
+    alignSelf: 'flex-start',
+    top: 5,
+    marginLeft: 15,
+  },
+
+});

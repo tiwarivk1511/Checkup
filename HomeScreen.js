@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { View, Image, StyleSheet, Text, Alert, TextInput, SafeAreaView, TouchableOpacity, BackHandler } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import CreateListScreen from './CreateListScreen';
+import AppointmentScreen from './AppointmentScreen';
 
 const HomeScreen = () => {
   const [currentScreen, setCurrentScreen] = useState('Start');
@@ -30,6 +31,10 @@ const HomeScreen = () => {
     setCurrentScreen('CreateListScreen'); // Set the current screen to 'CreateListScreen'
   };
 
+  const movetoAppointmnt =()=>{
+    setCurrentScreen('AppointmentScreen');
+  };
+
   // Render the StartScreen
   if (currentScreen === 'Start') {
     return (
@@ -48,9 +53,10 @@ const HomeScreen = () => {
 
         {/* Continue Button */}
         <LinearGradient colors={['#FFFFFF', '#CBD6E2']} style={styles.buttonContainer}>
-          <TouchableOpacity onPress={() => Alert.alert('continue Button pressed')}>
+          <TouchableOpacity onPress={movetoAppointmnt}>
             <Image source={require('./images/play.png')} style={styles.image} />
-            <Text style={styles.buttonText}>Continue</Text>
+            <Text style={styles.buttonText}
+            onPress={movetoAppointmnt}>Continue</Text>
           </TouchableOpacity>
         </LinearGradient>
       </View>
@@ -62,6 +68,9 @@ const HomeScreen = () => {
     return <CreateListScreen />;
   }
 
+  if(currentScreen ==='AppointmentScreen'){
+    return <AppointmentScreen/>
+  }
   return null; // Return null if the current screen is unknown or not implemented
 };
 
@@ -88,6 +97,7 @@ const styles = StyleSheet.create({
         fontSize: 42,
         fontWeight: 'bold',
     },
+    
     textB: {
         color: 'white',
         marginBottom:50,

@@ -33,6 +33,10 @@ import HomeScreen from './HomeScreen';
 import CreateListScreen from './CreateListScreen';
 import AppointmentScreen from './AppointmentScreen';
 import LoginScreen from './LoginScreen';
+import Cards from './Cards';
+import SearchCards from './SearchCard';
+
+
 
 
 
@@ -54,7 +58,6 @@ const App = () => {
         <SplashScreen />
       ) : (
         <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-
           {
           <AppointmentScreen/>}
         </View>
