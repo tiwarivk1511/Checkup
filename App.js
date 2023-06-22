@@ -59,7 +59,7 @@ const App = () => {
       ) : (
         <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
           {
-          <AppointmentScreen/>}
+          <Cards/>}
         </View>
       )}
     </SafeAreaView>

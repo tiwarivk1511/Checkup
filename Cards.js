@@ -1,16 +1,5 @@
 import React, { useState } from 'react';
-import {
-  Animated,
-  Image,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  TouchableWithoutFeedback,
-  View,
-  Modal,
-  Button,
-  Picker
-} from 'react-native';
+import { Animated, Image, StyleSheet, Text, TouchableOpacity, TouchableWithoutFeedback, View, Modal } from 'react-native';
 
 import { SwipeListView } from 'react-native-swipe-list-view';
 
@@ -28,7 +17,7 @@ export default function DataCards() {
   };
 
   const rowSwipeAnimatedValues = {};
-  let val = 5;
+  let val = 1;
   Array(val)
     .fill('')
     .forEach((_, i) => {
@@ -41,19 +30,8 @@ export default function DataCards() {
     }
   };
 
-  //Add Data in the Card
-  const [listData, setListData] = useState(
-    Array(val)
-      .fill('')
-      .map((_, i) => ({ key: `${i}`, text: `item #${i}` }))
-  );
-
   const deleteRow = (rowMap, rowKey) => {
     closeRow(rowMap, rowKey);
-    const newData = [...listData];
-    const prevIndex = listData.findIndex((item) => item.key === rowKey);
-    newData.splice(prevIndex, 1);
-    setListData(newData);
   };
 
   const onRowDidOpen = (rowKey) => {
@@ -122,7 +100,7 @@ export default function DataCards() {
             },
           ]}
         >
-          <Image source={require('./images/cross.png')} style={styles.trash} />
+          <Image source={require('./images/cross.png')} style={styles.trash}/>
         </Animated.View>
       </TouchableOpacity>
     </View>
@@ -132,7 +110,6 @@ export default function DataCards() {
     if (!selectedItem) return null;
 
     return (
-
       <View style={styles.popup}>
         <Text style={styles.popupText}>Selected Item: {selectedItem.text}</Text>
         <TouchableOpacity style={styles.buttonContainer}>
@@ -148,7 +125,7 @@ export default function DataCards() {
   return (
     <View style={styles.container}>
       <SwipeListView
-        data={listData}
+        data={[{ key: '0', text: 'item #0' }]}
         renderItem={renderItem}
         renderHiddenItem={renderHiddenItem}
         leftOpenValue={75}
@@ -162,9 +139,7 @@ export default function DataCards() {
       {/* Popup */}
       <Modal visible={showPopup} animationType="slide" transparent={true}>
         <TouchableWithoutFeedback onPress={handleClosePopup}>
-          <View style={styles.popupOverlay}>
-            {renderPopup()}
-          </View>
+          <View style={styles.popupOverlay}>{renderPopup()}</View>
         </TouchableWithoutFeedback>
       </Modal>
     </View>
@@ -188,7 +163,6 @@ const styles = StyleSheet.create({
     height: 85,
     marginTop: 3,
     borderRadius: 10,
-
   },
 
   // Style of the back side row
@@ -203,6 +177,7 @@ const styles = StyleSheet.create({
     marginTop: 3,
     height: 85,
   },
+
   backRightBtn: {
     alignItems: 'center',
     bottom: 0,
@@ -210,7 +185,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 0,
     width: 75,
-    hieght: 85,
+    height: 85,
     borderRadius: 10,
   },
 
@@ -218,7 +193,12 @@ const styles = StyleSheet.create({
     width: 200,
     backgroundColor: 'red',
     right: 0,
-    hieght: 85,
+    height: 85,
+  },
+
+  tick: {
+    height: 37,
+    width: 37,
   },
 
   trash: {
@@ -227,18 +207,13 @@ const styles = StyleSheet.create({
     left: 38,
   },
 
-  tick: {
-    height: 37,
-    width: 37,
-  },
-
   tripDotBtn: {
     position: 'relative',
     left: 177,
     zIndex: 400,
     height: 16,
     width: 3,
-    bottom: 47,
+    bottom: 55,
   },
 
   popupOverlay: {
@@ -269,7 +244,6 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
     alignSelf: 'center',
-
   },
 
   buttonContainer: {

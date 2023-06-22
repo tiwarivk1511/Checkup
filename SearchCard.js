@@ -14,8 +14,6 @@ import {
 
 
 export default function DataCards({item}) {
-    
-console.log(item);
 
     return (
         <View style={styles.rowFront}>
