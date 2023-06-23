@@ -37,10 +37,6 @@ import Cards from './Cards';
 import SearchCards from './SearchCard';
 
 
-
-
-
-
 const App = () => {
 
   const [showSplash, setShowSplash] = useState(true);
@@ -59,7 +55,7 @@ const App = () => {
       ) : (
         <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
           {
-          <Cards/>}
+          <AppointmentScreen/>}
         </View>
       )}
     </SafeAreaView>

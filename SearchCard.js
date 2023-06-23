@@ -1,15 +1,8 @@
 import React, { useState } from 'react';
 import {
-    Animated,
-    Image,
     StyleSheet,
     Text,
-    TouchableOpacity,
-    TouchableWithoutFeedback,
     View,
-    Modal,
-    Button,
-    Picker
 } from 'react-native';
 
 
@@ -23,8 +16,6 @@ export default function DataCards({item}) {
         </View>
     );
 }
-
-
 
 const styles = StyleSheet.create({
     container: {

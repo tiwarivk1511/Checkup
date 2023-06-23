@@ -15,9 +15,14 @@ import {
 } from 'react-native';
 
 import SearchCards from './SearchCard';
+import DataCards from './Cards';
+
 
 
 export default function SwipeValueBasedUi() {
+
+  //set the data in the swipable Cards
+
 
   const [showPopup, setShowPopup] = useState(false);
 
@@ -27,9 +32,63 @@ export default function SwipeValueBasedUi() {
   async function Generate() {
     // Add Generate UID API link here
     const API_GenUID = 'http://';
-    
 
   }
+
+  //fatching the Appointments from API
+  async function fetchAppointments(){
+    const url = "http://172.168.0.193:8000/api/patients";
+    try {
+      const currentdate = new Date();
+      let date = currentdate.getFullYear().toString() + "-" + (currentdate.getMonth() + 1).toString().padStart(2, "0") + "-" + currentdate.getDate().toString().padStart(2, "0");
+      // date="2023-06-23";
+      const response = await fetch(
+        url + "/api/appointments?date=" + date
+      );
+      const resData = await response.json();
+      // console.log(resData);
+      if (response.ok) {
+        let temp = resData["success"];
+        const sortedAppointments = temp.sort((a, b) => {
+          const timeA = convertTo24HourFormat(a.Time);
+          const timeB = convertTo24HourFormat(b.Time);
+          return (
+            new Date("1970/01/01 " + timeA) - new Date("1970/01/01 " + timeB)
+          );
+        });
+
+        // console.log(sortedAppointments)
+
+        setlist(sortedAppointments);
+        setfilteredlist(sortedAppointments);
+        // console.log(sortedAppointments);
+
+        if (sortedAppointments.length !== 0) {
+          if (sessionStorage.getItem("first_loaded") === "true") {
+            sessionStorage.setItem(
+              "defaultPatient",
+              sortedAppointments[0].Patient.id
+            );
+            sessionStorage.setItem('appointment_id', sortedAppointments[0].id);
+
+            sessionStorage.setItem("first_loaded", false);
+          }
+        } else {
+          console.log("No Appointments Today");
+        }
+      } else {
+        setbuffering(false);
+        console.log(resData["error"]);
+      }
+    } catch (error) {
+      setbuffering(false);
+      console.log(error);
+    }
+  };
+
+  useEffect(() => {
+    fetchAppointments();
+  }, []);
 
   //Searching Operation performence
   const [showSearch, setShowSearch] = useState(false);
@@ -132,6 +191,13 @@ export default function SwipeValueBasedUi() {
       </View>
       <View style={styles.appointView}>
         {/* Add the cards here */}
+        <FlatList
+                  data={
+                    FilteredData
+                  }
+                  renderItem={DataCards}
+                />
+
       </View>
       <View style={styles.btnView} backgroundColor={"white"}>
         <TouchableOpacity onPress={() => setShowPopup(true)}>
@@ -184,7 +250,7 @@ export default function SwipeValueBasedUi() {
                   source={require('./images/clear.png')} />
               </TouchableOpacity>)}
 
-
+              {/* geting input from the user for the search */}
               <TextInput
                 style={styles.input}
                 placeholder="Search"
@@ -192,12 +258,14 @@ export default function SwipeValueBasedUi() {
                 onChangeText={handleSearch}
               />
               <ScrollView horizontal="true">
+
                 <FlatList
                   data={
                     FilteredData
                   }
                   renderItem={SearchCards}
                 />
+
               </ScrollView>
             </View>
           </View>
@@ -211,10 +279,10 @@ export default function SwipeValueBasedUi() {
             onPress={handlePatentDataTouch}>
             <View style={styles.PfrontView}>
               <View style={styles.fontView}>
-              <Text
-                style={styles.font}>Patient's Details</Text>
+                <Text
+                  style={styles.font}>Patient's Details</Text>
               </View>
-              
+
               <TextInput
                 style={styles.PInput}
                 placeholder='Name' />
@@ -523,22 +591,22 @@ const styles = StyleSheet.create({
   PfrontView: {
     height: 830,
     width: 411,
-    margintop:30,
-    marginBottom:10,
+    margintop: 30,
+    marginBottom: 10,
     marginStart: 0,
     borderRadius: 30,
     shadowColor: '#000',
     backgroundColor: 'white',
     borderWidth: 2,
-    borderColor:'#F6F9FE',
+    borderColor: '#F6F9FE',
   },
 
   // Patient's Details
 
-  fontView:{
-    marginTop:20,
-    marginBottom:15,
-    marginLeft:10,
+  fontView: {
+    marginTop: 20,
+    marginBottom: 15,
+    marginLeft: 10,
   },
 
   PInput: {
@@ -595,7 +663,7 @@ const styles = StyleSheet.create({
     width: 390,
     height: 50,
     padding: 10,
-    top:1,
+    top: 1,
     bottom: 55,
     marginLeft: 10,
     marginRight: 29,

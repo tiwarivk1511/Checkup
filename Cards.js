@@ -43,13 +43,14 @@ export default function DataCards() {
     rowSwipeAnimatedValues[key].setValue(Math.abs(value));
   };
 
+  //Adding Data of the customers in the Card
   const renderItem = ({ item }) => (
     <TouchableWithoutFeedback onPress={() => console.log('You touched me')}>
       <View style={styles.rowFront}>
-        <Text style={styles.customerName}>Customer Name</Text>
+        <Text style={styles.customerName}>{item.First_name}{item.Middle_name}{item.Last_name}</Text>
         <Text style={styles.time}>Date + | + shift time</Text>
-        <Text style={styles.age}>age + gender</Text>
-        <Text style={styles.token}>token</Text>
+        <Text style={styles.age}>{item.Age} y.o. {item.Gender}</Text>
+        <Text style={styles.token}>{item.Unique_Id}</Text>
         <TouchableOpacity onPress={() => handleOpenPopup(item)}>
           <Image style={styles.tripDotBtn} source={require('./images/tripdot.png')} />
         </TouchableOpacity>
@@ -100,7 +101,7 @@ export default function DataCards() {
             },
           ]}
         >
-          <Image source={require('./images/cross.png')} style={styles.trash}/>
+          <Image source={require('./images/cross.png')} style={styles.trash} />
         </Animated.View>
       </TouchableOpacity>
     </View>
@@ -297,7 +298,8 @@ const styles = StyleSheet.create({
   },
 
   age: {
-    color: '#000000',
+    color: '#808080',
+    fontWeight: 'bold',
     alignSelf: 'flex-start',
     top: 5,
     marginLeft: 15,
